@@ -1,0 +1,64 @@
+name: Quest Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/new-leaf-immersive-vr
+    paths:
+      - "src/**"
+      - "externals/**"
+      - ".gitmodules"
+      - ".github/workflows/quest-android-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-quest-apk:
+    name: Build Quest 3 APK (arm64-v8a)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Check out source and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build components
+        run: |
+          sdkmanager --install \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "ndk;27.3.13750724" \
+            "cmake;3.25.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        working-directory: src/android
+        run: chmod +x ./gradlew
+
+      - name: Build Quest APK
+        working-directory: src/android
+        run: ./gradlew --no-daemon --stacktrace :app:assembleCanaryRelWithDebInfo
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: animal-crossing-new-leaf-vr-quest-apk
+          path: src/android/app/build/outputs/apk/canary/relWithDebInfo/*.apk
+          if-no-files-found: error
+          retention-days: 14
