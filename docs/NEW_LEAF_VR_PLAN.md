@@ -26,19 +26,30 @@ AzaharXR already provides an OpenXR headset session, stereo views, tracked contr
 - Add an opt-in per-title VR profile without changing behavior for other games.
 - Provide safe fallback to the normal AzaharXR presentation.
 
-### 2. Rendering and camera feasibility
+### 2. Player avatar as the VR body
+
+The intended first-person body is the player's own New Leaf villager avatar, not a generic humanoid or a replacement character.
+
+- Reuse the avatar appearance, clothing, hair, skin/face textures, proportions, and animation style from the user's own New Leaf game data. Do not ship extracted Nintendo assets in source control or the APK.
+- Preserve the in-game avatar as the source of truth for customization. Clothing/hair changes and saved appearance should remain reflected in the VR body.
+- The VR body should be aligned to the player's tracked head and hands, with the original avatar's body proportions and compatible idle/walk/run/tool-use animations.
+- Avoid showing a duplicate head or clipping the camera through the face in first person. Investigate a first-person body mesh/head-visibility treatment while retaining the full avatar in third-person or mirror views.
+- Do not assume that the emulator's current stereo screen output exposes a reusable 3D character mesh. The current renderer presents the emulated top/bottom framebuffers; it does not provide a game-agnostic avatar model API. A title-specific asset/animation path or game-aware runtime hook is required.
+- First prototype should validate extraction/identification of the avatar model and its skeleton from a user-supplied game dump, then prove one correctly scaled idle pose before adding tracked-hand retargeting.
+
+### 3. Rendering and camera feasibility
 - Trace the existing stereo render path from emulated frame output to OpenXR eye swapchains.
 - Determine whether game camera matrices or scene data can be accessed through supported emulator interfaces.
 - Prototype camera/head-pose mapping behind an experimental setting; preserve a recenter and comfort fallback.
 - Validate depth, scale, clipping, UI readability, and motion comfort before enabling by default.
 
-### 3. Input and interaction
+### 4. Input and interaction
 - Map Quest controller input to existing game controls first.
 - Prototype context-sensitive interaction only after confirming reliable game-state/input hooks.
 - Keep menus, inventory, dialogue, touch-screen functions, and text entry accessible.
 - Do not claim tracked-hand interaction until hand poses are actually consumed by the game-specific layer.
 
-### 4. Compatibility and release
+### 5. Compatibility and release
 - Test boot, new game, save/load, town traversal, dialogue, shops, inventory, activities, and long sessions.
 - Measure Quest 3 frame timing, thermal behavior, memory use, and crash recovery.
 - Publish reproducible build instructions and release notes.
@@ -49,8 +60,9 @@ AzaharXR already provides an OpenXR headset session, stereo views, tracked contr
 - Development branch: `feature/new-leaf-immersive-vr`
 - Base: `master` (AzaharXR fork)
 - Branch setup is complete.
-- No game-specific immersive rendering or APK build has been completed yet.
-- First engineering target: reproduce a clean baseline Quest APK build before implementing title-specific behavior.
+- A clean baseline Quest APK build has succeeded and the artifact was uploaded by GitHub Actions (run `42410024866`).
+- No New Leaf-specific avatar model, first-person camera, or immersive rendering has been implemented yet.
+- Next avatar milestone: identify and validate the player model/skeleton and animation data from the user's own game dump; then prototype a correctly scaled VR body.
 
 ## Contribution rules
 
