@@ -57,7 +57,7 @@ jobs:
             "platforms;android-35" \
             "build-tools;35.0.0" \
             "ndk;27.3.13750724" \
-            "cmake;3.25.0"
+            "cmake;3.31.1"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
